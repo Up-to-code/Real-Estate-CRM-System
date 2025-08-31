@@ -1,46 +1,15 @@
-"use client"
-
-import * as React from "react"
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import {
-  Command,
-  CommandInput,
-  CommandList,
-  CommandItem,
-  CommandGroup,
-  CommandEmpty,
-} from "@/components/ui/command"
-import {
-  UserPlus,
-  Home,
-  ClipboardList,
-  CalendarCheck2,
-  Search,
-  Settings,
-  BarChart3,
-  FileText,
-  Phone,
-  Mail,
-  Users,
-  DollarSign,
-  MapPin,
-  Bell,
+import React, { useState, useEffect, useMemo } from "react"
+import { 
+  Search, Home, Users, Calendar, Settings, BarChart3, FileText, 
+  Phone, Mail, Bell, DollarSign, MapPin, UserPlus 
 } from "lucide-react"
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 
-// 🎯 تعريف أنواع البيانات
 interface SearchItem {
   id: string
   title: string
-  description: string
-  icon: keyof typeof ICONS
-  color: keyof typeof COLORS
+  desc: string
+  icon: string
   route: string
-  keywords: string[]
 }
 
 interface SearchGroup {
@@ -52,178 +21,62 @@ interface SearchData {
   [key: string]: SearchGroup
 }
 
-// 🎯 بيانات البحث الديناميكية
+// Search data with categories
 const searchData: SearchData = {
   quick: {
     title: "العمليات السريعة",
     items: [
-      {
-        id: "add-client",
-        title: "إضافة عميل جديد",
-        description: "تسجيل عميل جديد في النظام",
-        icon: "UserPlus",
-        color: "blue",
-        route: "/clients/add",
-        keywords: ["عميل", "زبون", "عضو", "تسجيل", "جديد"]
-      },
-      {
-        id: "add-property",
-        title: "إدراج عقار",
-        description: "إضافة عقار للبيع أو الإيجار",
-        icon: "Home",
-        color: "green", 
-        route: "/properties/add",
-        keywords: ["عقار", "منزل", "شقة", "فيلا", "أرض", "مكتب"]
-      },
-      {
-        id: "new-contract",
-        title: "عقد جديد",
-        description: "إنشاء عقد بيع أو إيجار",
-        icon: "FileText",
-        color: "purple",
-        route: "/contracts/new", 
-        keywords: ["عقد", "اتفاقية", "بيع", "إيجار", "توقيع"]
-      },
-      {
-        id: "schedule-meeting",
-        title: "جدولة موعد",
-        description: "حجز موعد مع عميل",
-        icon: "CalendarCheck2",
-        color: "orange",
-        route: "/appointments/new",
-        keywords: ["موعد", "لقاء", "اجتماع", "زيارة", "جدولة"]
-      }
+      { id: "add-client", title: "إضافة عميل جديد", desc: "تسجيل عميل جديد في النظام", icon: "UserPlus", route: "/clients/add" },
+      { id: "add-property", title: "إدراج عقار", desc: "إضافة عقار للبيع أو الإيجار", icon: "Home", route: "/properties/add" },
+      { id: "new-contract", title: "عقد جديد", desc: "إنشاء عقد بيع أو إيجار", icon: "FileText", route: "/contracts/new" },
+      { id: "schedule-meeting", title: "جدولة موعد", desc: "حجز موعد مع عميل", icon: "Calendar", route: "/appointments/new" }
     ]
   },
-  
   management: {
-    title: "الإدارة والمتابعة", 
+    title: "الإدارة والمتابعة",
     items: [
-      {
-        id: "crm-dashboard",
-        title: "لوحة العملاء",
-        description: "متابعة وإدارة علاقات العملاء",
-        icon: "Users",
-        color: "indigo",
-        route: "/crm/dashboard",
-        keywords: ["crm", "عملاء", "متابعة", "علاقات", "إدارة"]
-      },
-      {
-        id: "financial-reports",
-        title: "التقارير المالية",
-        description: "عرض الإيرادات والمصروفات",
-        icon: "DollarSign", 
-        color: "emerald",
-        route: "/reports/financial",
-        keywords: ["تقارير", "مالية", "إيرادات", "مصروفات", "أرباح"]
-      },
-      {
-        id: "property-analytics",
-        title: "تحليلات العقارات",
-        description: "إحصائيات وأداء العقارات",
-        icon: "BarChart3",
-        color: "cyan",
-        route: "/analytics/properties", 
-        keywords: ["تحليلات", "إحصائيات", "أداء", "بيانات"]
-      },
-      {
-        id: "locations-map",
-        title: "خريطة المواقع",
-        description: "عرض العقارات على الخريطة",
-        icon: "MapPin",
-        color: "red",
-        route: "/map/locations",
-        keywords: ["خريطة", "مواقع", "عقارات", "جغرافي"]
-      }
+      { id: "clients", title: "لوحة العملاء", desc: "متابعة وإدارة علاقات العملاء", icon: "Users", route: "/clients" },
+      { id: "reports", title: "التقارير المالية", desc: "عرض الإيرادات والمصروفات", icon: "DollarSign", route: "/reports" },
+      { id: "analytics", title: "تحليلات العقارات", desc: "إحصائيات وأداء العقارات", icon: "BarChart3", route: "/analytics" },
+      { id: "map", title: "خريطة المواقع", desc: "عرض العقارات على الخريطة", icon: "MapPin", route: "/map" }
     ]
   },
-
   communication: {
-    title: "التواصل والإشعارات",
+    title: "التواصل",
     items: [
-      {
-        id: "phone-calls",
-        title: "سجل المكالمات", 
-        description: "إدارة المكالمات والمتابعة",
-        icon: "Phone",
-        color: "teal",
-        route: "/calls/history",
-        keywords: ["مكالمات", "هاتف", "اتصال", "متابعة"]
-      },
-      {
-        id: "email-center",
-        title: "مركز الرسائل",
-        description: "إرسال واستقبال الرسائل",
-        icon: "Mail",
-        color: "violet",
-        route: "/messages/inbox",
-        keywords: ["رسائل", "ايميل", "بريد", "تواصل"]
-      },
-      {
-        id: "notifications",
-        title: "الإشعارات",
-        description: "مراجعة التنبيهات والتذكيرات",
-        icon: "Bell",
-        color: "amber",
-        route: "/notifications/all",
-        keywords: ["إشعارات", "تنبيهات", "تذكيرات", "رسائل"]
-      }
-    ]
-  },
-
-  settings: {
-    title: "الإعدادات والتخصيص",
-    items: [
-      {
-        id: "system-settings",
-        title: "إعدادات النظام",
-        description: "تخصيص وضبط النظام",
-        icon: "Settings", 
-        color: "slate",
-        route: "/settings/system",
-        keywords: ["إعدادات", "تخصيص", "ضبط", "نظام", "تكوين"]
-      }
+      { id: "calls", title: "سجل المكالمات", desc: "إدارة المكالمات والمتابعة", icon: "Phone", route: "/calls" },
+      { id: "messages", title: "مركز الرسائل", desc: "إرسال واستقبال الرسائل", icon: "Mail", route: "/messages" },
+      { id: "notifications", title: "الإشعارات", desc: "مراجعة التنبيهات والتذكيرات", icon: "Bell", route: "/notifications" }
     ]
   }
 }
 
-// خريطة الأيقونات
-const ICONS = {
-  UserPlus, Home, ClipboardList, CalendarCheck2, Search, Settings,
-  BarChart3, FileText, Phone, Mail, Users, DollarSign, MapPin, Bell
-} as const
+export default function SearchBar() {
+  const [isOpen, setIsOpen] = useState(false)
+  const [query, setQuery] = useState("")
+  const [selectedIndex, setSelectedIndex] = useState(-1)
 
-// ألوان الأيقونات
-const COLORS = {
-  blue: "bg-blue-500/20 text-blue-400",
-  green: "bg-green-500/20 text-green-400", 
-  purple: "bg-purple-500/20 text-purple-400",
-  orange: "bg-orange-500/20 text-orange-400",
-  indigo: "bg-indigo-500/20 text-indigo-400",
-  emerald: "bg-emerald-500/20 text-emerald-400",
-  cyan: "bg-cyan-500/20 text-cyan-400",
-  red: "bg-red-500/20 text-red-400",
-  teal: "bg-teal-500/20 text-teal-400",
-  violet: "bg-violet-500/20 text-violet-400", 
-  amber: "bg-amber-500/20 text-amber-400",
-  slate: "bg-slate-500/20 text-slate-400",
-} as const
+  const glassStyle = {
+    backgroundColor: 'rgba(30, 30, 30, 0.9)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+  }
 
-export function SearchBar() {
-  const [isOpen, setIsOpen] = React.useState(false)
-  const [searchQuery, setSearchQuery] = React.useState("")
+  const itemStyle = {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+  }
 
-  // اختصار لوحة المفاتيح
-  React.useEffect(() => {
+  // Keyboard shortcuts
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
-        setIsOpen(true) // فقط افتح النافذة، لا تقم بتبديل الحالة
+        setIsOpen(true)
       }
-      
-      // إغلاق النافذة عند الضغط على Escape
       if (e.key === "Escape") {
         setIsOpen(false)
+        setQuery("")
+        setSelectedIndex(-1)
       }
     }
     
@@ -231,158 +84,204 @@ export function SearchBar() {
     return () => document.removeEventListener("keydown", handleKeyDown)
   }, [])
 
-  // تصفية البيانات حسب البحث
-  const filteredResults = React.useMemo((): SearchData => {
-    if (!searchQuery.trim()) return searchData
+  // Filter results
+  const filteredResults = useMemo(() => {
+    if (!query.trim()) return searchData
 
     const results: SearchData = {}
-    
     Object.entries(searchData).forEach(([key, group]) => {
-      const matchedItems = group.items.filter((item: SearchItem) => {
-        const query = searchQuery.toLowerCase()
-        return (
-          item.title.toLowerCase().includes(query) ||
-          item.description.toLowerCase().includes(query) ||
-          item.keywords.some((keyword: string) => keyword.includes(query))
-        )
-      })
-
+      const matchedItems = group.items.filter((item: SearchItem) =>
+        item.title.toLowerCase().includes(query.toLowerCase()) ||
+        item.desc.toLowerCase().includes(query.toLowerCase())
+      )
       if (matchedItems.length > 0) {
         results[key] = { ...group, items: matchedItems }
       }
     })
-
     return results
-  }, [searchQuery])
+  }, [query])
 
-  // تنفيذ الإجراء
-  const executeAction = React.useCallback((item: SearchItem): void => {
-    setIsOpen(false)
-    setSearchQuery("")
+  // Get all items as flat array for keyboard navigation
+  const allItems = useMemo(() => {
+    const items: SearchItem[] = []
+    Object.values(filteredResults).forEach((group) => {
+      items.push(...group.items)
+    })
+    return items
+  }, [filteredResults])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isOpen) return
+      
+      if (e.key === "ArrowDown") {
+        e.preventDefault()
+        setSelectedIndex(prev => prev < allItems.length - 1 ? prev + 1 : 0)
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault()
+        setSelectedIndex(prev => prev > 0 ? prev - 1 : allItems.length - 1)
+      } else if (e.key === "Enter" && selectedIndex >= 0) {
+        e.preventDefault()
+        executeAction(allItems[selectedIndex])
+      }
+    }
     
-    // محاكاة التنقل
-    setTimeout(() => {
-      console.log(`التنقل إلى: ${item.route}`)
-      alert(`تم الانتقال إلى: ${item.title}\nالمسار: ${item.route}`)
-    }, 150)
-  }, [])
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
+  }, [isOpen, allItems, selectedIndex])
 
-  // عدد النتائج
-  const totalResults = Object.values(filteredResults).reduce(
-    (total, group) => total + group.items.length, 
-    0
-  )
+  const icons = { Search, Home, Users, Calendar, Settings, BarChart3, FileText, Phone, Mail, Bell, DollarSign, MapPin, UserPlus }
+
+  const executeAction = (item: SearchItem) => {
+    setIsOpen(false)
+    setQuery("")
+    setSelectedIndex(-1)
+    alert(`التنقل إلى: ${item.title}\nالمسار: ${item.route}`)
+  }
+
+  const totalResults = Object.values(filteredResults).reduce((total: number, group: SearchGroup) => total + group.items.length, 0)
+
+  // Get current item index for highlighting
+  const getCurrentItemIndex = (item: SearchItem) => {
+    return allItems.findIndex(i => i.id === item.id)
+  }
 
   return (
     <>
-      {/* زر التفعيل */}
+      {/* Search Bar */}
       <button
         onClick={() => setIsOpen(true)}
-        className="group flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 text-white/80 backdrop-blur-sm transition-all duration-200 hover:bg-white/20 hover:text-white hover:scale-[1.02]"
+        style={glassStyle}
+        className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 hover:bg-[rgba(255,255,255,0.12)] w-80 h-[50px]"
       >
-        <Search className="h-4 w-4 transition-transform group-hover:scale-110" />
-        <span className="font-medium">البحث في النظام...</span>
-        <kbd className="ml-auto rounded-md bg-white/20 px-2 py-1 text-xs font-mono">
+        <Search className="h-4 w-4" />
+        <span className="flex-1 text-left font-medium">البحث في النظام...</span>
+        <kbd 
+          style={itemStyle}
+          className="px-2 py-1 text-xs font-mono rounded text-white/80"
+        >
           ⌘K
         </kbd>
       </button>
 
-      {/* نافذة البحث */}
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="mx-auto w-full max-w-3xl rounded-2xl border border-white/20 bg-white/5 p-0 shadow-2xl backdrop-blur-3xl">
+      {/* Command Palette */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setIsOpen(false)}>
+          <div className="absolute inset-0 bg-black/50" />
           
-          <VisuallyHidden>
-            <DialogTitle>مركز البحث والأوامر السريعة</DialogTitle>
-          </VisuallyHidden>
-
-          <Command shouldFilter={false} className="bg-transparent">
+          <div 
+            style={glassStyle}
+            className="relative w-full max-w-2xl h-[500px] rounded-xl overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
             
-            {/* شريط البحث */}
-            <div className="flex items-center border-b border-white/10 px-6 py-4">
-              <Search className="ml-3 h-5 w-5 text-white/50" />
-              <CommandInput
-                placeholder="اكتب للبحث عن أي شيء في النظام..."
-                className="flex-1 border-0 bg-transparent text-lg text-white placeholder-white/50 focus:ring-0"
-                value={searchQuery}
-                onValueChange={setSearchQuery}
+            {/* Search Input */}
+            <div className="flex items-center border-b border-white/20 px-5 py-4">
+              <Search className="h-5 w-5 text-white/70 mr-4" />
+              <input
+                type="text"
+                placeholder="Search for anything..."
+                className="flex-1 bg-transparent text-white/95 placeholder-white/50 border-0 outline-0 text-base font-medium"
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value)
+                  setSelectedIndex(-1)
+                }}
+                autoFocus
               />
-              {searchQuery && (
-                <div className="rounded-full bg-white/10 px-3 py-1 text-sm text-white/70">
-                  {totalResults} نتيجة
+              {query && (
+                <span className="text-xs text-white/60 bg-white/10 px-2 py-1 rounded-full font-medium">
+                  {totalResults}
+                </span>
+              )}
+            </div>
+
+            {/* Results */}
+            <div className="flex-1 overflow-auto py-2">
+              {totalResults === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-white/50">
+                  <Search className="h-12 w-12 mb-4 opacity-30" />
+                  <div className="text-base font-medium">
+                    {query ? "No results found" : "Type to search"}
+                  </div>
+                  <div className="text-sm mt-1">
+                    {query ? "Try different keywords" : "Find anything in your system"}
+                  </div>
+                </div>
+              ) : (
+                <div className="px-2">
+                  {Object.entries(filteredResults).map(([groupKey, group]: [string, SearchGroup], groupIndex: number) => (
+                    <div key={groupKey} className={groupIndex > 0 ? "mt-6" : ""}>
+                      
+                      {/* Group Title */}
+                      <div className="text-xs font-semibold text-white/60 uppercase tracking-wide px-3 py-2 mb-1">
+                        {group.title}
+                      </div>
+
+                      {/* Group Items */}
+                      <div className="space-y-1">
+                        {group.items.map((item: SearchItem) => {
+                          const IconComponent = icons[item.icon as keyof typeof icons] || Search
+                          const itemIndex = getCurrentItemIndex(item)
+                          const isSelected = selectedIndex === itemIndex
+                          return (
+                            <div
+                              key={item.id}
+                              onClick={() => executeAction(item)}
+                              className={`group flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer ${
+                                isSelected ? 'bg-white/20' : 'hover:bg-white/10'
+                              }`}
+                            >
+                              {/* Icon */}
+                              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-white/10">
+                                <IconComponent className="h-4 w-4 text-white/90" />
+                              </div>
+                              
+                              {/* Content */}
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-white/95 text-sm leading-tight">
+                                  {item.title}
+                                </div>
+                                <div className="text-xs text-white/50 leading-tight mt-0.5">
+                                  {item.desc}
+                                </div>
+                              </div>
+                              
+                              {/* Route indicator */}
+                              <div className="flex-shrink-0 text-xs text-white/30 font-mono bg-white/5 px-2 py-1 rounded border border-white/10">
+                                {item.route.split('/').pop()}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
-            
-            {/* قائمة النتائج */}
-            <CommandList className="max-h-[500px] overflow-auto p-4 text-white">
-              
-              {totalResults === 0 ? (
-                <CommandEmpty className="py-12 text-center">
-                  <div className="text-white/60">
-                    {searchQuery ? (
-                      <>
-                        <div className="mb-2 text-lg">لا توجد نتائج</div>
-                        <div className="text-sm">جرب كلمات أخرى للبحث</div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="mb-2 text-lg">ابدأ البحث</div>
-                        <div className="text-sm">اكتب أي شيء للعثور على ما تحتاجه</div>
-                      </>
-                    )}
-                  </div>
-                </CommandEmpty>
-              ) : (
-                
-                Object.entries(filteredResults).map(([groupKey, group]) => (
-                  <CommandGroup key={groupKey} heading={group.title} className="mb-4">
-                    <div className="space-y-2">
-                      {group.items.map((item) => {
-                        const IconComponent = ICONS[item.icon] || Search
-                        const colorClass = COLORS[item.color] || COLORS.slate
 
-                        return (
-                          <CommandItem
-                            key={item.id}
-                            onSelect={() => executeAction(item)}
-                            className="group flex cursor-pointer items-center gap-4 rounded-xl p-4 transition-all hover:bg-white/10 data-[selected=true]:bg-white/15"
-                          >
-                            {/* أيقونة الإجراء */}
-                            <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${colorClass} transition-transform group-hover:scale-110`}>
-                              <IconComponent className="h-5 w-5" />
-                            </div>
-                            
-                            {/* محتوى الإجراء */}
-                            <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-white group-hover:text-white/90">
-                                {item.title}
-                              </div>
-                              <div className="text-sm text-white/60 group-hover:text-white/70">
-                                {item.description}
-                              </div>
-                            </div>
-                            
-                            {/* مسار الصفحة */}
-                            <div className="hidden sm:block text-xs font-mono text-white/40 group-hover:text-white/50">
-                              {item.route}
-                            </div>
-                            
-                            {/* سهم الانتقال */}
-                            <div className="text-white/30 transition-transform group-hover:translate-x-1 group-hover:text-white/50">
-                              ←
-                            </div>
-                          </CommandItem>
-                        )
-                      })}
-                    </div>
-                  </CommandGroup>
-                ))
-              )}
-              
-            </CommandList>
-          </Command>
-        </DialogContent>
-      </Dialog>
+            {/* Footer */}
+            <div className="border-t border-white/20 px-4 py-3 flex items-center justify-between text-xs text-white/50">
+              <div className="flex items-center gap-4">
+                <span className="flex items-center gap-1">
+                  <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] border border-white/10">↵</kbd>
+                  to select
+                </span>
+                <span className="flex items-center gap-1">
+                  <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] border border-white/10">↑↓</kbd>
+                  to navigate
+                </span>
+              </div>
+              <span className="flex items-center gap-1">
+                <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] border border-white/10">esc</kbd>
+                to close
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

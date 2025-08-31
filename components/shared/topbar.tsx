@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { SearchBar } from "./SearchBar"
+import  SearchBar  from "./SearchBar"
 
 interface UserInfo {
   name: string
