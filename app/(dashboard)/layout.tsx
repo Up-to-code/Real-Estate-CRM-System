@@ -1,5 +1,5 @@
 "use client";
-import { Sidebar } from "@/components/shared/sidebar";
+ import { Sidebar } from "@/components/shared/sidebar";
 import Topbar  from "@/components/shared/topbar";
 
 export default function DashboardLayout({
@@ -10,7 +10,7 @@ export default function DashboardLayout({
 
 	return (
 		<div className="relative flex h-screen overflow-hidden bg-background" dir="rtl">
-			{/* Sidebar */}
+ 			{/* Sidebar */}
 			<Sidebar />
 
 			{/* Main Content */}

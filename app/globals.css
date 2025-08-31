@@ -7,9 +7,8 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground arabic-text
+    @apply bg-background text-foreground arabic-text;
   }
-
   :root {
     --background: 0 0% 100%;
     --foreground: 222.22 47.37% 11.18%;
@@ -17,32 +16,38 @@
     --card-foreground: 222.22 47.37% 11.18%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.22 47.37% 11.18%;
+
     --primary: 203.02 63.86% 48.82%;
     --primary-foreground: 0 0% 100%;
     --secondary: 204.38 68.09% 36.86%;
     --secondary-foreground: 0 0% 100%;
+
     --muted: 210 40% 96.08%;
     --muted-foreground: 215.38 16.32% 46.86%;
     --accent: 176.67 40.91% 91.37%;
     --accent-foreground: 222.22 47.37% 11.18%;
-    --destructive: 0 84.24% 60.20%;
+    --destructive: 0 84.24% 60.2%;
     --destructive-foreground: 0 0% 100%;
     --border: 214.29 31.82% 91.37%;
     --input: 214.29 31.82% 91.37%;
     --ring: 176.29 40.59% 46.86%;
-    --chart-1: 176.29 40.59% 46.86%;
-    --chart-2: 204.38 68.09% 36.86%;
-    --chart-3: 217.22 91.22% 59.80%;
-    --chart-4: 37.69 92.13% 50.20%;
-    --chart-5: 0 84.24% 60.20%;
+
+    /* Charts: directly use primary/secondary values */
+    --chart-1: 203.02 63.86% 48.82%; /* same as --primary */
+    --chart-2: 204.38 68.09% 36.86%; /* same as --secondary */
+    --chart-3: 217.22 91.22% 59.8%;
+    --chart-4: 37.69 92.13% 50.2%;
+    --chart-5: 0 84.24% 60.2%;
+
     --sidebar: 210 40% 98.04%;
     --sidebar-foreground: 222.22 47.37% 11.18%;
-    --sidebar-primary: 176.29 40.59% 46.86%;
+    --sidebar-primary: 203.02 63.86% 48.82%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 176.29 40.59% 46.86%;
+    --sidebar-accent: 204.38 68.09% 36.86%;
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 214.29 31.82% 91.37%;
-    --sidebar-ring: 176.29 40.59% 46.86%;
+    --sidebar-ring: 203.02 63.86% 48.82%;
+
     --radius: 0.5rem;
   }
 
@@ -53,29 +58,34 @@
     --card-foreground: 210 20% 98.04%;
     --popover: 215 27.91% 16.86%;
     --popover-foreground: 210 20% 98.04%;
+
     --primary: 203.02 63.86% 48.82%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 203.02 63.86% 48.82%;
+    --secondary: 204.38 68.09% 36.86%;
     --secondary-foreground: 0 0% 100%;
+
     --muted: 216.92 19.12% 26.67%;
-    --muted-foreground: 217.89 10.61% 64.90%;
+    --muted-foreground: 217.89 10.61% 64.9%;
     --accent: 203.02 63.86% 48.82%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84.24% 60.20%;
+    --destructive: 0 84.24% 60.2%;
     --destructive-foreground: 0 0% 100%;
     --border: 216.92 19.12% 26.67%;
     --input: 216.92 19.12% 26.67%;
     --ring: 203.02 63.86% 48.82%;
-    --chart-1: 202.89 59.38% 25.10%;
-    --chart-2: 204.38 68.09% 36.86%;
-    --chart-3: 217.22 91.22% 59.80%;
-    --chart-4: 37.69 92.13% 50.20%;
-    --chart-5: 0 84.24% 60.20%;
+
+    /* Charts: directly use primary/secondary values */
+    --chart-1: 203.02 63.86% 48.82%; /* same as --primary */
+    --chart-2: 204.38 68.09% 36.86%; /* same as --secondary */
+    --chart-3: 217.22 91.22% 59.8%;
+    --chart-4: 37.69 92.13% 50.2%;
+    --chart-5: 0 84.24% 60.2%;
+
     --sidebar: 220.91 39.29% 10.98%;
     --sidebar-foreground: 210 20% 98.04%;
     --sidebar-primary: 203.02 63.86% 48.82%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 203.02 63.86% 48.82%;
+    --sidebar-accent: 204.38 68.09% 36.86%;
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 216.92 19.12% 26.67%;
     --sidebar-ring: 203.02 63.86% 48.82%;
@@ -84,7 +94,8 @@
 
 /* Arabic Font Configuration */
 .font-arabic {
-  font-family: var(--font-arabic), 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--font-arabic), "Segoe UI", Tahoma, Geneva, Verdana,
+    sans-serif;
   direction: rtl;
   text-align: right;
 }
