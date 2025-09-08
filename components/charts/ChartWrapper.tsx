@@ -1,194 +1,114 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
-import { TrendingUp } from "lucide-react"
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis, ResponsiveContainer } from "recharts"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart"
+import { useState } from "react"
+import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-// Sample data for the charts
-const chartData = [
-  { month: "يناير", مبيعات: 186, استئجار: 305 },
-  { month: "فبراير", مبيعات: 305, استئجار: 298 },
-  { month: "مارس", مبيعات: 237, استئجار: 410 },
-  { month: "أبريل", مبيعات: 73, استئجار: 230 },
-  { month: "مايو", مبيعات: 209, استئجار: 350 },
-  { month: "يونيو", مبيعات: 214, استئجار: 320 },
-]
+const clientData = {
+  weekly: [
+    { period: "السبت", clients: 45 },
+    { period: "الأحد", clients: 62 },
+    { period: "الإثنين", clients: 78 },
+    { period: "الثلاثاء", clients: 55 },
+    { period: "الأربعاء", clients: 81 },
+    { period: "الخميس", clients: 67 },
+    { period: "الجمعة", clients: 72 },
+  ],
+  monthly: [
+    { period: "يناير", clients: 186 },
+    { period: "فبراير", clients: 305 },
+    { period: "مارس", clients: 237 },
+    { period: "أبريل", clients: 273 },
+    { period: "مايو", clients: 309 },
+    { period: "يونيو", clients: 314 },
+    { period: "يوليو", clients: 285 },
+    { period: "أغسطس", clients: 295 },
+    { period: "سبتمبر", clients: 332 },
+    { period: "أكتوبر", clients: 356 },
+    { period: "نوفمبر", clients: 378 },
+    { period: "ديسمبر", clients: 402 },
+  ],
+  yearly: [
+    { period: "2020", clients: 2850 },
+    { period: "2021", clients: 3120 },
+    { period: "2022", clients: 3560 },
+    { period: "2023", clients: 4120 },
+    { period: "2024", clients: 4800 },
+  ]
+}
 
-const chartConfig = {
-  مبيعات: {
-    label: "المبيعات",
-    color: "var(--color-sales)",
-  },
-  استئجار: {
-    label: "الإيجارات",
-    color: "var(--color-rentals)",
-  },
-} satisfies ChartConfig
-
-// CSS variables for chart colors
-const chartStyle = `
-  :root {
-    --color-sales: #3b82f6;
-    --color-rentals: #10b981;
-    --color-bg: #f8fafc;
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background border rounded-lg p-3 shadow-md text-right">
+        <p className="font-medium">{label}</p>
+        <p className="text-primary">العملاء: {payload[0].value.toLocaleString()}</p>
+      </div>
+    )
   }
-  
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --color-sales: #60a5fa;
-      --color-rentals: #34d399;
-      --color-bg: #0f172a;
-    }
-  }
-`
+  return null
+}
 
-export default function SalesRentalDashboard() {
+export default function ClientAnalytics() {
+  const [timeFrame, setTimeFrame] = useState<keyof typeof clientData>("weekly")
+  const currentData = clientData[timeFrame]
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <style>{chartStyle}</style>
-      
+    <div className="space-y-6" dir="rtl">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="text-right">
+          <h2 className="text-2xl font-semibold tracking-tight">تحليلات العملاء</h2>
+          <p className="text-muted-foreground">تتبع اكتساب العملاء مع مرور الوقت</p>
+        </div>
+        
+        <Select value={timeFrame} onValueChange={(value) => setTimeFrame(value as keyof typeof clientData)}>
+          <SelectTrigger className="w-[140px] rounded-lg">
+            <SelectValue placeholder="الإطار الزمني" />
+          </SelectTrigger>
+          <SelectContent className="rounded-lg">
+            <SelectItem value="weekly">أسبوعي</SelectItem>
+            <SelectItem value="monthly">شهري</SelectItem>
+            <SelectItem value="yearly">سنوي</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-
-      {/* Main Chart */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>إحصائيات المبيعات والإيجارات</CardTitle>
-          <CardDescription>أداء الشهر الحالي مقارنة بالأشهر السابقة</CardDescription>
+      <Card className="rounded-xl">
+        <CardHeader className="text-right">
+          <CardTitle>نمو العملاء</CardTitle>
+          <CardDescription>
+            {timeFrame === "weekly" ? "اكتساب العملاء خلال الأسبوع" : 
+            timeFrame === "monthly" ? "اكتساب العملاء خلال 12 شهرًا" : "اكتساب العملاء من 2020 إلى 2024"}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={chartConfig}>
-            <ResponsiveContainer width="100%" height={350}>
-              <BarChart
-                data={chartData}
-                margin={{
-                  top: 20,
-                  right: 30,
-                  left: 20,
-                  bottom: 10,
-                }}
-                barGap={10}
-                barCategoryGap="20%"
-              >
-                <CartesianGrid vertical={false} strokeDasharray="3 3" />
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={currentData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                 <XAxis 
-                  dataKey="month" 
+                  dataKey="period" 
                   tickLine={false}
-                  tickMargin={10}
                   axisLine={false}
+                  tick={{ fontSize: 12 }}
                 />
                 <YAxis 
                   tickLine={false}
                   axisLine={false}
-                  tickMargin={10}
-                  width={35}
+                  tick={{ fontSize: 12 }}
                 />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent hideLabel />}
+                <Tooltip content={<CustomTooltip />} />
+                <Bar 
+                  dataKey="clients" 
+                  radius={[6, 6, 0, 0]}
+                  className="fill-primary"
                 />
-                <Bar 
-                  dataKey="مبيعات" 
-                  fill="var(--color-sales)" 
-                  radius={[4, 4, 0, 0]}
-                  barSize={40}
-                >
-                  <LabelList
-                    position="top"
-                    offset={12}
-                    className="fill-foreground"
-                    fontSize={12}
-                    formatter={(value: number) => value.toLocaleString()}
-                  />
-                </Bar>
-                <Bar 
-                  dataKey="استئجار" 
-                  fill="var(--color-rentals)" 
-                  radius={[4, 4, 0, 0]}
-                  barSize={40}
-                >
-                  <LabelList
-                    position="top"
-                    offset={12}
-                    className="fill-foreground"
-                    fontSize={12}
-                    formatter={(value: number) => value.toLocaleString()}
-                  />
-                </Bar>
               </BarChart>
             </ResponsiveContainer>
-          </ChartContainer>
+          </div>
         </CardContent>
-        <CardFooter className="flex-col items-start gap-2 text-sm">
-          <div className="flex gap-2 font-medium">
-            <TrendingUp className="h-4 w-4 text-emerald-500" />
-            اتجاه إيجابي بنسبة ٨٪ هذا الشهر
-          </div>
-          <div className="text-muted-foreground">
-            عرض إجمالي المبيعات والإيجارات خلال آخر ٦ أشهر
-          </div>
-        </CardFooter>
       </Card>
-
-      {/* Performance Highlights */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">أعلى أشهر المبيعات</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {chartData
-                .sort((a, b) => b.مبيعات - a.مبيعات)
-                .slice(0, 3)
-                .map((item, index) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
-                      <span>{item.month}</span>
-                    </div>
-                    <span className="font-medium">{item.مبيعات.toLocaleString()}</span>
-                  </div>
-                ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">أعلى أشهر الإيجارات</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {chartData
-                .sort((a, b) => b.استئجار - a.استئجار)
-                .slice(0, 3)
-                .map((item, index) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></div>
-                      <span>{item.month}</span>
-                    </div>
-                    <span className="font-medium">{item.استئجار.toLocaleString()}</span>
-                  </div>
-                ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   )
 }

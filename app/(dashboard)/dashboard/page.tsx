@@ -1,13 +1,13 @@
 import { StatCard } from "./components/StatCard"
 import { QuickActions } from "./components/QuickActions"
- import { PropertyTable } from "./components/PropertyOverview"
+ import PropertyTable from "./components/PropertyOverview"
 import ChartWrapper from "@/components/charts/ChartWrapper"
 import { Home, UserPlus, TrendingUp, ClipboardCheck, DollarSign } from "lucide-react"
 import { ActivityFeed } from "./components/activities"
 
 export default function Page() {
   return (
-    <div className="space-y-6 p-6 bg-background min-h-screen">
+    <div className="space-y-6 p-6  min-h-screen">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-card-foreground">لوحة تحكم العقارات</h1>

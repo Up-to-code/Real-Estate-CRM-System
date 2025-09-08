@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -10,9 +10,6 @@ import {
   Settings,
   Users,
   BarChart3,
-  FolderKanban,
-  ChevronLeft,
-  ChevronRight,
   FileText,
   Calendar,
   Database,
@@ -24,96 +21,90 @@ import {
   Bell,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
+  Menu,
+  X,
+  Star,
+  TrendingUp,
+  Clock,
+  Mail,
+  Phone,
+  Key,
+  UserCheck,
+  Target,
+  Kanban,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Skeleton } from "@/components/ui/skeleton";
 
-// Sidebar data structure
-interface SidebarItem {
-  title: string;
-  href: string;
-  icon: string;
-  badge?: string;
-  badgeVariant?: "default" | "secondary" | "destructive" | "outline";
+interface SidebarProps {
+  onMobileClose?: () => void;
+  className?: string;
+  isMobileOpen?: boolean;
+  onMobileToggle?: () => void;
 }
 
-interface SidebarGroup {
-  title: string;
-  items: SidebarItem[];
-}
-
-interface SidebarFooter {
-  copyright: string;
-  status: string;
-  version: string;
-}
-
-interface SidebarBrand {
-  name: string;
-  logo?: string;
-}
-
-interface SidebarData {
-  brand: SidebarBrand;
-  groups: SidebarGroup[];
-  footer: SidebarFooter;
-}
-
-// Updated sidebar for Real Estate CRM
-const sidebarData: SidebarData = {
+// Simplified sidebar data
+const sidebarData = {
   brand: {
     name: "عقارك",
-    logo: "/logo.png",
   },
   groups: [
     {
-      title: "العملاء",
+      title: "لوحة التحكم",
       items: [
-        { title: "قائمة العملاء", href: "/clients", icon: "Users" },
-        { title: "إضافة عميل جديد", href: "/clients/new", icon: "PlusCircle", badge: "جديد", badgeVariant: "secondary" },
-        { title: "تقييمات العملاء", href: "/clients/reviews", icon: "BarChart3" },
+        { title: "الرئيسية", href: "/dashboard", icon: "LayoutDashboard" },
       ],
     },
     {
       title: "العقارات",
       items: [
-        { title: "جميع العقارات", href: "/properties", icon: "Home" },
-        { title: "إضافة عقار جديد", href: "/properties/new", icon: "PlusCircle", badge: "جديد", badgeVariant: "secondary" },
-        { title: "العقارات المميزة", href: "/properties/featured", icon: "BarChart3" },
-        { title: "المعاملات", href: "/transactions", icon: "FileText" },
+        { title: "جميع العقارات", href: "/dashboard/properties", icon: "Home" },
+        { title: "إضافة عقار", href: "/dashboard/properties/new", icon: "PlusCircle", badge: "جديد" },
+        { title: "العقارات المميزة", href: "/dashboard/properties/featured", icon: "Star" },
       ],
     },
     {
-      title: "المواعيد",
+      title: "العملاء",
       items: [
-        { title: "التقويم", href: "/calendar", icon: "Calendar" },
-        { title: "المواعيد القادمة", href: "/appointments", icon: "Calendar", badge: "5", badgeVariant: "default" },
-        { title: "السجلات", href: "/appointments/history", icon: "Database" },
+        { title: "قائمة العملاء", href: "/dashboard/clients", icon: "Users" },
+        { title: "إضافة عميل", href: "/dashboard/clients/new", icon: "PlusCircle", badge: "جديد" },
+        { title: "العملاء المحتملين", href: "/dashboard/clients/prospects", icon: "Target" },
+      ],
+    },
+    {
+      title: "المشاريع",
+      items: [
+        { title: "لوحة المهام", href: "/dashboard/CRM", icon: "Kanban" },
+        { title: "الحملات", href: "/dashboard/campaigns", icon: "MessageSquare" },
       ],
     },
     {
       title: "التواصل",
       items: [
-        { title: "الرسائل", href: "/messages", icon: "MessageSquare", badge: "3", badgeVariant: "default" },
-        { title: "الإشعارات", href: "/notifications", icon: "Bell", badge: "5", badgeVariant: "destructive" },
+        { title: "الرسائل", href: "/dashboard/messages", icon: "MessageSquare" },
+        { title: "الإشعارات", href: "/dashboard/notifications", icon: "Bell" },
+        { title: "المواعيد", href: "/dashboard/calendar", icon: "Calendar" },
+      ],
+    },
+    {
+      title: "التقارير",
+      items: [
+        { title: "التقارير العامة", href: "/dashboard/reports", icon: "BarChart3" },
+        { title: "المبيعات", href: "/dashboard/reports/sales", icon: "TrendingUp" },
       ],
     },
     {
       title: "الإعدادات",
       items: [
-        { title: "الإعدادات العامة", href: "/settings", icon: "Settings" },
-        { title: "الأمان", href: "/security", icon: "Shield" },
-        { title: "المساعدة", href: "/help", icon: "HelpCircle" },
+        { title: "الإعدادات", href: "/dashboard/settings", icon: "Settings" },
+        { title: "المستخدمين", href: "/dashboard/users", icon: "UserCheck" },
+        { title: "المساعدة", href: "/dashboard/help", icon: "HelpCircle" },
       ],
     },
   ],
-  footer: {
-    copyright: "© 2025 RealEstate CRM",
-    status: "النظام يعمل بكفاءة",
-    version: "v2.1.0",
-  },
 };
 
 // Icon map
@@ -122,7 +113,6 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   Settings,
   Users,
   BarChart3,
-  FolderKanban,
   FileText,
   Calendar,
   Database,
@@ -132,37 +122,34 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   Home,
   PlusCircle,
   Bell,
+  Star,
+  TrendingUp,
+  Clock,
+  Mail,
+  Phone,
+  Key,
+  UserCheck,
+  Target,
+  Kanban,
 };
 
-interface SidebarProps {
-  onMobileClose?: () => void;
-  className?: string;
-}
-
-export function Sidebar({ onMobileClose, className }: SidebarProps) {
+export function Sidebar({ onMobileClose, className, isMobileOpen, onMobileToggle }: SidebarProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const [isMounted, setIsMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsMounted(true);
     
-    // Default to all groups closed initially
+    // Auto-open groups with active items
     const initialOpenState: Record<string, boolean> = {};
     sidebarData.groups.forEach(group => {
-      initialOpenState[group.title] = false;
+      const hasActiveItem = group.items.some(item => item.href === pathname);
+      initialOpenState[group.title] = hasActiveItem;
     });
     setOpenGroups(initialOpenState);
-    
-    // Simulate loading delay
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
-    
-    return () => clearTimeout(timer);
-  }, []);
+  }, [pathname]);
 
   const toggleGroup = (groupTitle: string) => {
     setOpenGroups(prev => ({
@@ -173,12 +160,11 @@ export function Sidebar({ onMobileClose, className }: SidebarProps) {
 
   const handleLinkClick = () => onMobileClose?.();
 
-  // Don't render until mounted to avoid hydration mismatch
   if (!isMounted) {
     return (
       <div 
         className={cn(
-          "flex h-full flex-col border-l bg-gradient-to-b from-background to-muted/20 shadow-lg transition-all duration-300 ease-in-out w-72",
+          "flex h-full flex-col border-l bg-background shadow-sm transition-all duration-300 ease-in-out w-72",
           className
         )}
         dir="rtl"
@@ -190,250 +176,209 @@ export function Sidebar({ onMobileClose, className }: SidebarProps) {
     <TooltipProvider delayDuration={100}>
       <div
         className={cn(
-          "flex h-full flex-col border-l bg-gradient-to-b from-background to-muted/20 shadow-lg transition-all duration-300 ease-in-out",
-          isCollapsed ? "w-16" : "w-72",
+          "flex h-full flex-col border-l bg-background shadow-sm transition-all duration-300 ease-in-out z-50",
+          isCollapsed ? "w-16" : "w-64",
+          isMobileOpen ? "fixed inset-y-0 right-0 z-50" : "",
           className
         )}
         dir="rtl"
       >
-        {/* Header */}
-        <div className="flex flex-col p-4 border-b">
-          <div className="flex items-center justify-between">
-            {!isCollapsed ? (
-              <Link href="/dashboard" className="flex items-center gap-3 transition-opacity hover:opacity-80">
-                {isLoading ? (
-                  <Skeleton className="w-8 h-8 rounded-lg bg-primary/20" />
-                ) : (
-                  <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center transition-all duration-300 animate-in fade-in-50">
-                    <LayoutDashboard className="w-4 h-4 text-primary-foreground" />
-                  </div>
-                )}
-                {isLoading ? (
-                  <Skeleton className="h-6 w-32 bg-muted" />
-                ) : (
-                  <span className="text-lg font-bold text-foreground transition-opacity duration-300 animate-in fade-in-50 slide-in-from-right-4">
-                    {sidebarData.brand.name}
-                  </span>
-                )}
-              </Link>
-            ) : (
-              isLoading ? (
-                <Skeleton className="w-8 h-8 rounded-lg bg-primary/20 mx-auto" />
-              ) : (
-                <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center mx-auto transition-all duration-300 animate-in fade-in-50">
-                  <LayoutDashboard className="w-4 h-4 text-primary-foreground" />
-                </div>
-              )
-            )}
+        {/* Mobile Overlay */}
+        {isMobileOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={onMobileClose}
+          />
+        )}
 
-            {isLoading ? (
-              <Skeleton className="h-8 w-8 rounded-md bg-muted" />
-            ) : (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-8 w-8 transition-all duration-300 hover:scale-105 animate-in fade-in-50" 
-                    onClick={() => setIsCollapsed(!isCollapsed)}
-                  >
-                    {isCollapsed ? (
-                      <ChevronLeft className="h-4 w-4 transition-transform duration-300" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 transition-transform duration-300" />
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="left">{isCollapsed ? "توسيع الشريط الجانبي" : "طي الشريط الجانبي"}</TooltipContent>
-              </Tooltip>
-            )}
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b">
+          {/* Mobile Menu Button */}
+          <div className="lg:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onMobileToggle}
+              className="h-8 w-8"
+            >
+              {isMobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </Button>
+          </div>
+
+          {!isCollapsed ? (
+            <Link href="/dashboard" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                <LayoutDashboard className="w-4 h-4 text-primary-foreground" />
+              </div>
+              <span className="font-bold text-lg">{sidebarData.brand.name}</span>
+            </Link>
+          ) : (
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center mx-auto">
+              <LayoutDashboard className="w-4 h-4 text-primary-foreground" />
+            </div>
+          )}
+
+          {/* Collapse Button */}
+          <div className="hidden lg:block">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8" 
+                  onClick={() => setIsCollapsed(!isCollapsed)}
+                >
+                  {isCollapsed ? (
+                    <ChevronLeft className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                {isCollapsed ? "توسيع" : "طي"}
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-4">
-          <div className="space-y-2">
-            {isLoading ? (
-              // Loading skeletons for menu items
-              Array.from({ length: 5 }).map((_, groupIndex) => (
-                <div key={groupIndex} className="space-y-3">
-                  <Skeleton className="h-4 w-24 bg-muted rounded-md" />
-                  <div className="space-y-2 mr-3">
-                    {Array.from({ length: 3 }).map((_, itemIndex) => (
-                      <Skeleton key={itemIndex} className="h-10 w-full bg-muted rounded-lg" />
-                    ))}
-                  </div>
-                </div>
-              ))
-            ) : (
-              sidebarData.groups.map((group) => (
-                <div key={group.title} className="space-y-1 animate-in fade-in-50 slide-in-from-right-4">
-                  {!isCollapsed ? (
-                    <>
-                      <button
-                        onClick={() => toggleGroup(group.title)}
-                        className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded-lg hover:bg-accent transition-all duration-300 group"
-                      >
-                        <span className="text-muted-foreground group-hover:text-foreground transition-colors">
-                          {group.title}
-                        </span>
-                        {openGroups[group.title] ? (
-                          <ChevronUp className="h-4 w-4 text-muted-foreground transition-transform duration-300" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-300" />
-                        )}
-                      </button>
-                      
-                      <div 
-                        className={cn(
-                          "grid transition-all duration-500 ease-in-out overflow-hidden",
-                          openGroups[group.title] ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-                        )}
-                      >
-                        <div className="overflow-hidden">
-                          <div className="space-y-1 mr-3">
-                            {group.items.map((item, index) => {
-                              const isActive = pathname === item.href;
-                              const IconComponent = iconMap[item.icon];
+          <div className="space-y-4">
+            {sidebarData.groups.map((group) => (
+              <div key={group.title} className="space-y-2">
+                {!isCollapsed ? (
+                  <>
+                    <button
+                      onClick={() => toggleGroup(group.title)}
+                      className="flex items-center justify-between w-full px-2 py-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <span>{group.title}</span>
+                      {openGroups[group.title] ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
+                    </button>
+                    
+                    {openGroups[group.title] && (
+                      <div className="space-y-1 mr-4">
+                        {group.items.map((item) => {
+                          const isActive = pathname === item.href;
+                          const IconComponent = iconMap[item.icon];
 
-                              return (
+                          return (
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              onClick={handleLinkClick}
+                              className={cn(
+                                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
+                                isActive 
+                                  ? "bg-primary text-primary-foreground" 
+                                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                              )}
+                            >
+                              <IconComponent className="h-4 w-4" />
+                              <span className="flex-1">{item.title}</span>
+                              {item.badge && (
+                                <Badge variant="secondary" className="text-xs">
+                                  {item.badge}
+                                </Badge>
+                              )}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => toggleGroup(group.title)}
+                          className="flex items-center justify-center w-full p-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {group.title.substring(0, 2)}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="left">{group.title}</TooltipContent>
+                    </Tooltip>
+                    
+                    {openGroups[group.title] && (
+                      <div className="space-y-1 mt-1">
+                        {group.items.map((item) => {
+                          const isActive = pathname === item.href;
+                          const IconComponent = iconMap[item.icon];
+
+                          return (
+                            <Tooltip key={item.href}>
+                              <TooltipTrigger asChild>
                                 <Link
-                                  key={item.href}
                                   href={item.href}
                                   onClick={handleLinkClick}
                                   className={cn(
-                                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-300 group animate-in fade-in-50",
-                                    "hover:bg-primary/10 hover:text-foreground hover:translate-x-1",
+                                    "flex items-center justify-center p-2 rounded-lg transition-colors",
                                     isActive 
-                                      ? "bg-primary text-primary-foreground shadow-sm" 
-                                      : "text-muted-foreground"
+                                      ? "bg-primary text-primary-foreground" 
+                                      : "text-muted-foreground hover:text-foreground hover:bg-accent"
                                   )}
-                                  style={{ animationDelay: `${index * 50}ms` }}
                                 >
-                                  <IconComponent className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:scale-110" />
-                                  <span className="flex-1 text-right transition-opacity duration-300">
-                                    {item.title}
-                                  </span>
+                                  <IconComponent className="h-4 w-4" />
                                   {item.badge && (
-                                    <Badge 
-                                      variant={item.badgeVariant as "default" | "secondary" | "destructive" | "outline" || "default"} 
-                                      className="text-xs transition-all duration-300"
+                                    <Badge
+                                      variant="secondary"
+                                      className="absolute -top-1 -left-1 h-4 w-4 p-0 text-[10px] flex items-center justify-center"
                                     >
                                       {item.badge}
                                     </Badge>
                                   )}
                                 </Link>
-                              );
-                            })}
-                          </div>
-                        </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="left">
+                                <div>
+                                  <p className="font-medium">{item.title}</p>
+                                  {item.badge && (
+                                    <Badge variant="secondary" className="mt-1 text-xs">
+                                      {item.badge}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          );
+                        })}
                       </div>
-                    </>
-                  ) : (
-                    <>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={() => toggleGroup(group.title)}
-                            className="flex items-center justify-center w-full p-2 text-sm font-medium rounded-lg hover:bg-accent transition-all duration-300"
-                          >
-                            {group.title.substring(0, 2)}
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent side="left">{group.title}</TooltipContent>
-                      </Tooltip>
-                      
-                      <div 
-                        className={cn(
-                          "grid transition-all duration-500 ease-in-out overflow-hidden",
-                          openGroups[group.title] ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-                        )}
-                      >
-                        <div className="overflow-hidden">
-                          <div className="space-y-1 mt-1">
-                            {group.items.map((item, index) => {
-                              const isActive = pathname === item.href;
-                              const IconComponent = iconMap[item.icon];
-
-                              return (
-                                <Tooltip key={item.href} disableHoverableContent>
-                                  <TooltipTrigger asChild>
-                                    <Link
-                                      href={item.href}
-                                      onClick={handleLinkClick}
-                                      className={cn(
-                                        "flex items-center justify-center p-2 rounded-lg text-sm font-medium transition-all duration-300 group animate-in fade-in-50",
-                                        "hover:bg-primary/10 hover:text-foreground",
-                                        isActive 
-                                          ? "bg-primary text-primary-foreground shadow-sm" 
-                                          : "text-muted-foreground"
-                                      )}
-                                      style={{ animationDelay: `${index * 50}ms` }}
-                                    >
-                                      <IconComponent className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:scale-110" />
-                                      {item.badge && (
-                                        <Badge
-                                          variant={item.badgeVariant as "default" | "secondary" | "destructive" | "outline" || "default"}
-                                          className="absolute -top-1 -left-1 h-4 w-4 p-0 text-[10px] flex items-center justify-center transition-all duration-300"
-                                        >
-                                          {item.badge}
-                                        </Badge>
-                                      )}
-                                    </Link>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="left">
-                                    {item.title}
-                                    {item.badge && (
-                                      <Badge 
-                                        variant={item.badgeVariant as "default" | "secondary" | "destructive" | "outline" || "default"} 
-                                        className="ml-2 text-xs"
-                                      >
-                                        {item.badge}
-                                      </Badge>
-                                    )}
-                                  </TooltipContent>
-                                </Tooltip>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))
-            )}
+                    )}
+                  </>
+                )}
+              </div>
+            ))}
           </div>
         </nav>
 
         {/* Footer */}
         <div className="border-t p-4">
-          {isLoading ? (
-            <div className="flex flex-col items-center text-center space-y-2">
-              <Skeleton className="h-4 w-24 bg-muted" />
-              <Skeleton className="h-3 w-32 bg-muted" />
-              <Skeleton className="h-2 w-16 bg-muted" />
-            </div>
-          ) : !isCollapsed ? (
-            <div className="flex flex-col items-center text-center space-y-2 transition-all duration-300 animate-in fade-in-50 slide-in-from-right-4">
-              <div className="flex items-center">
-                <div className="h-2 w-2 rounded-full bg-green-500 mr-2 animate-pulse"></div>
-                <span className="text-xs text-muted-foreground">{sidebarData.footer.status}</span>
+          {!isCollapsed ? (
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-2">
+                <div className="h-2 w-2 rounded-full bg-green-500 mr-2"></div>
+                <span className="text-xs text-muted-foreground">متصل</span>
               </div>
-              <span className="text-xs text-muted-foreground">{sidebarData.footer.copyright}</span>
-              <span className="text-[10px] text-muted-foreground/70">{sidebarData.footer.version}</span>
+              <span className="text-xs text-muted-foreground">v2.1.0</span>
             </div>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex flex-col items-center space-y-2 transition-all duration-300 animate-in fade-in-50">
-                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-[10px] text-muted-foreground/70">v2.1.0</span>
+                <div className="flex flex-col items-center">
+                  <div className="h-2 w-2 rounded-full bg-green-500 mb-1"></div>
+                  <span className="text-[10px] text-muted-foreground">v2.1.0</span>
                 </div>
               </TooltipTrigger>
               <TooltipContent side="left">
-                <p>{sidebarData.footer.status}</p>
-                <p className="text-muted-foreground">{sidebarData.footer.copyright}</p>
+                <p>متصل</p>
+                <p className="text-muted-foreground">v2.1.0</p>
               </TooltipContent>
             </Tooltip>
           )}

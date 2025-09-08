@@ -1,206 +1,271 @@
-// components/PropertyOverview.tsx
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { MoreHorizontal, Eye, Edit, Trash2, MapPin, Calendar, Plus } from "lucide-react"
+"use client";
+
+import React, { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import Image from "next/image"
+} from "@/components/ui/dropdown-menu";
+import {
+  MoreHorizontal,
+  Eye,
+  Edit,
+  Trash2,
+  MapPin,
+  Bed,
+  Bath,
+  Square,
+  Calendar,
+} from "lucide-react";
 
-const properties = [
-  { 
-    id: 1, 
-    title: "شقة فاخرة", 
-    status: "متاحة", 
-    price: "1,200,000 ر.س", 
-    location: "الرياض، حي الصحافة", 
-    date: "2023-10-15",
-    image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-    beds: 3,
-    baths: 2,
-    area: "150 م²"
-  },
-  { 
-    id: 2, 
-    title: "فيلا مودرن", 
-    status: "مباعة", 
-    price: "3,500,000 ر.س", 
-    location: "جدة، حي الروضة", 
-    date: "2023-09-22",
-    image: "https://images.unsplash.com/photo-1613977257363-707ba9348227?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-    beds: 5,
-    baths: 4,
-    area: "320 م²"
-  },
-  { 
-    id: 3, 
-    title: "أرض تجارية", 
-    status: "تحت الإجراء", 
-    price: "2,000,000 ر.س", 
-    location: "الدمام، حي الاتصالات", 
-    date: "2023-11-05",
-    image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-    beds: 0,
-    baths: 0,
-    area: "500 م²"
-  },
-]
-
-const getStatusVariant = (status: string) => {
-  switch (status) {
-    case "متاحة":
-      return { variant: "default", class: "bg-green-50 text-green-700 border-green-200" }
-    case "مباعة":
-      return { variant: "secondary", class: "bg-blue-50 text-blue-700 border-blue-200" }
-    case "تحت الإجراء":
-      return { variant: "destructive", class: "bg-amber-50 text-amber-700 border-amber-200" }
-    default:
-      return { variant: "default", class: "bg-gray-50 text-gray-700 border-gray-200" }
-  }
+// Types
+interface Property {
+  id: number;
+  title: string;
+  status: "available" | "sold" | "pending";
+  price: string;
+  location: string;
+  date: string;
+  image: string;
+  beds: number;
+  baths: number;
+  area: string;
 }
 
-export function PropertyTable() {
+// Sample data
+const properties: Property[] = [
+  {
+    id: 1,
+    title: "شقة فاخرة",
+    status: "available",
+    price: "1,200,000 ر.س",
+    location: "الرياض، حي الصحافة",
+    date: "2023-10-15",
+    image:
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=250&fit=crop",
+    beds: 3,
+    baths: 2,
+    area: "150 م²",
+  },
+  {
+    id: 2,
+    title: "فيلا مودرن",
+    status: "sold",
+    price: "3,500,000 ر.س",
+    location: "جدة، حي الروضة",
+    date: "2023-09-22",
+    image:
+      "https://images.unsplash.com/photo-1613977257363-707ba9348227?w=400&h=250&fit=crop",
+    beds: 5,
+    baths: 4,
+    area: "320 م²",
+  },
+  {
+    id: 3,
+    title: "أرض تجارية",
+    status: "pending",
+    price: "2,000,000 ر.س",
+    location: "الدمام، حي الاتصالات",
+    date: "2023-11-05",
+    image:
+      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=250&fit=crop",
+    beds: 0,
+    baths: 0,
+    area: "500 م²",
+  },
+  {
+    id: 4,
+    title: "شقة عائلية",
+    status: "available",
+    price: "950,000 ر.س",
+    location: "مكة، حي العزيزية",
+    date: "2023-12-10",
+    image:
+      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&h=250&fit=crop",
+    beds: 2,
+    baths: 2,
+    area: "110 م²",
+  },
+  {
+    id: 5,
+    title: "فيلا فاخرة",
+    status: "sold",
+    price: "4,250,000 ر.س",
+    location: "الرياض، حي النخيل",
+    date: "2023-08-15",
+    image:
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&h=250&fit=crop",
+    beds: 6,
+    baths: 5,
+    area: "450 م²",
+  },
+  {
+    id: 6,
+    title: "شقة راقية",
+    status: "available",
+    price: "1,750,000 ر.س",
+    location: "الخبر، حي الكورنيش",
+    date: "2023-11-20",
+    image:
+      "https://images.unsplash.com/photo-1574362848149-11496d93a7c7?w=400&h=250&fit=crop",
+    beds: 4,
+    baths: 3,
+    area: "180 م²",
+  },
+];
+
+// Status configuration
+const statusConfig: Record<
+  Property["status"],
+  { label: string; className: string }
+> = {
+  available: {
+    label: "متاحة",
+    className: "bg-green-100 text-green-800 border-green-200",
+  },
+  sold: {
+    label: "مباعة",
+    className: "bg-blue-100 text-blue-800 border-blue-200",
+  },
+  pending: {
+    label: "تحت الإجراء",
+    className: "bg-amber-100 text-amber-800 border-amber-200",
+  },
+};
+
+// Property Card component
+const PropertyCard = ({
+  property,
+  onAction,
+}: {
+  property: Property;
+  onAction: (action: string, property: Property) => void;
+}) => {
+  const [imageError, setImageError] = useState(false);
+
+  const fallbackSvg = `data:image/svg+xml;base64,${btoa(`
+    <svg width="400" height="250" viewBox="0 0 400 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="400" height="250" fill="#f3f4f6"/>
+      <rect x="140" y="90" width="120" height="70" fill="#d1d5db"/>
+    </svg>
+  `)}`;
+
   return (
-    <Card className="border-0 shadow-sm" dir="rtl">
-      <CardHeader className="flex flex-row items-center justify-between pb-4">
-        <div>
-          <CardTitle className="text-lg font-semibold">عقاراتي</CardTitle>
-          <p className="text-sm text-muted-foreground mt-1">نظرة عامة على أحدث العقارات</p>
+    <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg">
+      <div className="relative">
+        <img
+          src={imageError ? fallbackSvg : property.image}
+          alt={property.title}
+          className="w-full h-48 object-cover"
+          onError={() => setImageError(true)}
+        />
+        <Badge
+          className={`absolute top-4 left-4 ${
+            statusConfig[property.status].className
+          }`}
+        >
+          {statusConfig[property.status].label}
+        </Badge>
+      </div>
+
+      <CardContent className="p-5">
+        <div className="flex justify-between items-start mb-4">
+          <h3 className="text-lg font-bold">{property.title}</h3>
+          <span className="text-primary font-bold">{property.price}</span>
         </div>
-        <Button size="sm" className="flex items-center gap-1">
-          <Plus className="h-4 w-4" />
-          إضافة عقار
-        </Button>
-      </CardHeader>
-      <CardContent className="p-0">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[280px]">العقار</TableHead>
-              <TableHead className="text-center">التفاصيل</TableHead>
-              <TableHead>السعر</TableHead>
-              <TableHead>الحالة</TableHead>
-              <TableHead>التاريخ</TableHead>
-              <TableHead className="text-center">الإجراءات</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {properties.map((property) => {
-              const statusInfo = getStatusVariant(property.status);
-              
-              return (
-                <TableRow key={property.id} className="hover:bg-muted/30 transition-colors">
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="relative h-12 w-12 rounded-md overflow-hidden flex-shrink-0 border">
-                        <Image
-                          src={property.image}
-                          alt={property.title}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="font-medium truncate">{property.title}</div>
-                        <div className="flex items-center text-sm text-muted-foreground mt-1">
-                          <MapPin className="h-3 w-3 ml-1 flex-shrink-0" />
-                          <span className="truncate">{property.location}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex justify-center gap-2 text-sm">
-                      {property.beds > 0 && (
-                        <span className="bg-muted px-2 py-1 rounded text-xs">🛏️ {property.beds}</span>
-                      )}
-                      {property.baths > 0 && (
-                        <span className="bg-muted px-2 py-1 rounded text-xs">🚿 {property.baths}</span>
-                      )}
-                      <span className="bg-muted px-2 py-1 rounded text-xs">📐 {property.area}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-semibold text-primary">
-                    {property.price}
-                  </TableCell>
-                  <TableCell>
-                    <Badge 
-                      variant={statusInfo.variant as "default" | "secondary" | "destructive"}
-                      className={`rounded-md px-2 py-1 text-xs border ${statusInfo.class}`}
-                    >
-                      {property.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Calendar className="h-3 w-3 ml-1 flex-shrink-0" />
-                      {property.date}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex justify-center">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            className="h-8 w-8"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-40">
-                          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-                            <Eye className="w-4 h-4" />
-                            <span>عرض</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-                            <Edit className="w-4 h-4" />
-                            <span>تعديل</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive">
-                            <Trash2 className="w-4 h-4" />
-                            <span>حذف</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-        
-        {/* Empty state */}
-        {properties.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-            <div className="rounded-full bg-muted p-3 mb-4">
-              <MapPin className="h-6 w-6 text-muted-foreground" />
+
+        <div className="flex items-center text-muted-foreground mb-6">
+          <MapPin className="w-4 h-4 ml-1" />
+          <span className="text-sm">{property.location}</span>
+        </div>
+
+        <div className="flex justify-between mb-6">
+          {property.beds > 0 && (
+            <div className="flex items-center">
+              <Bed className="w-4 h-4 text-muted-foreground ml-1" />
+              <span className="text-sm text-muted-foreground">
+                {property.beds} غرف
+              </span>
             </div>
-            <h3 className="text-base font-medium mb-2">لا توجد عقارات</h3>
-            <p className="text-muted-foreground text-sm mb-4">ابدأ بإضافة أول عقار لك</p>
-            <Button size="sm">
-              <Plus className="h-4 w-4 ml-1" />
-              إضافة عقار جديد
-            </Button>
+          )}
+          {property.baths > 0 && (
+            <div className="flex items-center">
+              <Bath className="w-4 h-4 text-muted-foreground ml-1" />
+              <span className="text-sm text-muted-foreground">
+                {property.baths} حمام
+              </span>
+            </div>
+          )}
+          <div className="flex items-center">
+            <Square className="w-4 h-4 text-muted-foreground ml-1" />
+            <span className="text-sm text-muted-foreground">
+              {property.area}
+            </span>
           </div>
-        )}
+        </div>
+
+        <div className="flex justify-between items-center pt-4 border-t">
+          <div className="flex items-center text-sm text-muted-foreground">
+            <Calendar className="w-4 h-4 ml-1" />
+            <span>{property.date}</span>
+          </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onAction("view", property)}>
+                <Eye className="w-4 h-4 ml-2" />
+                <span>عرض</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onAction("edit", property)}>
+                <Edit className="w-4 h-4 ml-2" />
+                <span>تعديل</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive"
+                onClick={() => onAction("delete", property)}
+              >
+                <Trash2 className="w-4 h-4 ml-2" />
+                <span>حذف</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </CardContent>
     </Card>
-  )
+  );
+};
+
+// Main component
+export default function PropertyDashboard() {
+  const handleAction = (action: string, property: Property) => {
+    console.log(`Action: ${action}`, property);
+  };
+
+  return (
+    <div className="bg-muted/40 p-4 md:p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {properties.map((property) => (
+            <PropertyCard
+              key={property.id}
+              property={property}
+              onAction={handleAction}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
