@@ -165,3 +165,6 @@ This project is licensed under the MIT License.
 
 **Built with ❤️ using Next.js, TypeScript, and Tailwind CSS**
 
+## Project links
+
+[Source](https://github.com/Up-to-code/Real-Estate-CRM-System) · [Issues](https://github.com/Up-to-code/Real-Estate-CRM-System/issues) · [Public project directory](https://github.com/qentrah/.github/blob/main/profile/PROJECTS.md)
